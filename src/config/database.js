@@ -2,34 +2,24 @@
 const { Pool } = require('pg');
 const env = require('./env');
 
-const poolConfig = env.DATABASE_URL 
-    ? { 
-        connectionString: env.DATABASE_URL, 
-        ssl: { rejectUnauthorized: false },
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000
-      }
-    : {
-        host: env.DB_HOST,
-        port: env.DB_PORT,
-        user: env.DB_USER,
-        password: String(env.DB_PASSWORD),
-        database: env.DB_NAME,
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    };
-
-const pgPool = new Pool(poolConfig);
+const pgPool = new Pool({
+    host: env.DB_HOST,
+    port: env.DB_PORT,
+    user: env.DB_USER,
+    password: String(env.DB_PASSWORD),
+    database: env.DB_NAME,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 const formatPgSql = (sql) => {
     let paramIndex = 1;
     let pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
     pgSql = pgSql.replace(/CURDATE\(\)/gi, 'CURRENT_DATE');
     pgSql = pgSql.replace(/`/g, '"');
-    
+
     // Si c'est un INSERT sans RETURNING, on l'ajoute pour récupérer l'ID généré
     if (pgSql.trim().toUpperCase().startsWith('INSERT') && !pgSql.toUpperCase().includes('RETURNING')) {
         pgSql += ' RETURNING *';
@@ -73,7 +63,7 @@ const pool = {
     },
     getConnection: async () => {
         const client = await pgPool.connect();
-        
+
         return {
             query: async (sql, params = []) => {
                 const pgSql = formatPgSql(sql);
