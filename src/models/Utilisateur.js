@@ -1,6 +1,6 @@
 // src/models/Utilisateur.js
 const { query } = require('./index');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const Utilisateur = {
     create: async (data) => {
