@@ -2,17 +2,27 @@
 const { Pool } = require('pg');
 const env = require('./env');
 
-const pgPool = new Pool({
-    host: env.DB_HOST,
-    port: env.DB_PORT,
-    user: env.DB_USER,
-    password: String(env.DB_PASSWORD),
-    database: env.DB_NAME,
-    max: 10,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+const poolConfig = env.DATABASE_URL 
+    ? { 
+        connectionString: env.DATABASE_URL, 
+        ssl: { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000
+      }
+    : {
+        host: env.DB_HOST,
+        port: env.DB_PORT,
+        user: env.DB_USER,
+        password: String(env.DB_PASSWORD),
+        database: env.DB_NAME,
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    };
+
+const pgPool = new Pool(poolConfig);
 
 const formatPgSql = (sql) => {
     let paramIndex = 1;
