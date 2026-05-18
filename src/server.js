@@ -10,13 +10,31 @@ const app = express();
 
 // ====================== CORS ======================
 const envVars = require('./config/env');
-const allowedOrigins = envVars.FRONTEND_URL ? [envVars.FRONTEND_URL, 'http://localhost:5173'] : ['http://localhost:5173'];
+
+// On ajoute les URLs de production pour éviter les erreurs CORS
+const allowedOrigins = [
+    envVars.FRONTEND_URL,
+    // 'http://localhost:5173',
+    'https://almay-et-frere-frontend.onrender.com',
+    'https://almamy-et-frere-frontend.onrender.com'
+].filter(Boolean); // Enlève les valeurs undefined/null
+
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+        // Autoriser les requêtes sans origin (ex: Postman) ou si en développement
+        if (!origin || process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
+
+        // Vérifier si l'origine correspond (en ignorant le '/' final éventuel)
+        const isAllowed = allowedOrigins.some(allowed =>
+            origin === allowed || origin === allowed + '/'
+        );
+
+        if (isAllowed) {
             callback(null, true);
         } else {
+            console.error(`CORS bloqué pour l'origine: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
