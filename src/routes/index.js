@@ -31,11 +31,15 @@ const paiementFournisseurRoutes = require('./paiementFournisseurRoutes');
 const depenseRoutes = require('./depenseRoutes');
 const parametreRoutes = require('./parametreRoutes');
 const historiqueRoutes = require('./historiqueRoutes');
+const dashboardRoutes = require('./dashboardRoutes');
 
 // Configuration des routes avec préfixes et protection
 
 // Routes publiques (auth)
 router.use('/auth', authRoutes);
+
+// Tableau de bord
+router.use('/dashboard', authMiddleware, dashboardRoutes);
 
 // Routes pour Administrateur uniquement (ID_ROLE = 1)
 router.use('/roles', authMiddleware, roleMiddleware(1), roleRoutes);
