@@ -85,7 +85,7 @@ const livraisonController = {
                     c.DATE_COMMANDE         AS date_commande,
                     c.MONTANT_TOTAL         AS montant_total,
                     c.STATUT                AS statut_commande,
-                    GROUP_CONCAT(p.NOM SEPARATOR ', ') AS produits
+                    STRING_AGG(p.NOM, ', ') AS produits
                 FROM LIVRAISON_COMMANDE lc
                 JOIN COMMANDE_CLIENT c  ON lc.ID_COMMANDE = c.ID_COMMANDE
                 JOIN CLIENT cl          ON c.ID_CLIENT = cl.ID_CLIENT

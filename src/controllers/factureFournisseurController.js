@@ -129,8 +129,6 @@ const factureFournisseurController = {
       const facturesAvecUrl = factures.map(f => ({
         ...f,
         url: f.fichier_pdf
-          ? `http://localhost:5000${f.fichier_pdf}`
-          : null
       }));
 
       res.json(facturesAvecUrl);
@@ -162,9 +160,7 @@ const factureFournisseurController = {
 
       const facture = factures[0];
 
-      facture.url = facture.fichier_pdf
-        ? `http://localhost:5000${facture.fichier_pdf}`
-        : null;
+      facture.url = facture.fichier_pdf;
 
       res.json(facture);
 
