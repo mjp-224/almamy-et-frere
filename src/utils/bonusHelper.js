@@ -63,7 +63,7 @@ const bonusHelper = {
                     FROM FACTURE f
                     JOIN DETAIL_FACTURE df ON f.ID_FACTURE = df.ID_FACTURE
                     JOIN PRODUIT p ON df.ID_PRODUIT = p.ID_PRODUIT
-                    WHERE f.DATE_FACTURE >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                    WHERE f.DATE_FACTURE >= CURRENT_DATE - INTERVAL '3 months'
                       AND (SELECT t.ID_FOURNISSEUR FROM TARIF_FOURNISSEUR t WHERE t.ID_PRODUIT = df.ID_PRODUIT LIMIT 1) = ?
                 `, [id_fournisseur]);
 

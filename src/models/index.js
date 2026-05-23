@@ -7,7 +7,7 @@ const db = pool;
 // Fonction utilitaire pour exécuter des requêtes
 const query = async (sql, params = []) => {
     try {
-        const [rows] = await db.execute(sql, params);
+        const [rows] = await db.query(sql, params);
         return rows;
     } catch (error) {
         console.error('Database query error:', error.message);

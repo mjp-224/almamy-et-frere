@@ -34,11 +34,13 @@ const paiementClientController = {
         [id_facture, montant, mode]
       );
 
-      // 4. Mettre à jour le solde restant
+      // 4. Mettre à jour le solde restant et le statut
       const nouveau_solde = solde_restant - parseFloat(montant);
+      const nouveau_statut = nouveau_solde <= 0 ? 'PAYEE' : 'EN_COURS';
+
       await pool.query(
-        'UPDATE FACTURE SET SOLDE_RESTANT = ? WHERE ID_FACTURE = ?',
-        [nouveau_solde, id_facture]
+        'UPDATE FACTURE SET SOLDE_RESTANT = ?, STATUT = ? WHERE ID_FACTURE = ?',
+        [nouveau_solde, nouveau_statut, id_facture]
       );
 
       res.status(201).json({

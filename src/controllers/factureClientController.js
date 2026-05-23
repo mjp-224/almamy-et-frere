@@ -22,7 +22,8 @@ const factureClientController = {
         'SELECT ID_FACTURE FROM FACTURE WHERE ID_COMMANDE = ?', [id_commande]
       );
       if (existing.length > 0) {
-        await connection.release();
+        await connection.rollback();
+        connection.release();
         return res.status(400).json({ message: 'Une facture existe déjà pour cette commande' });
       }
       
@@ -31,7 +32,8 @@ const factureClientController = {
         'SELECT ID_CLIENT FROM COMMANDE_CLIENT WHERE ID_COMMANDE = ?', [id_commande]
       );
       if (commandeRows.length === 0) {
-        await connection.release();
+        await connection.rollback();
+        connection.release();
         return res.status(404).json({ message: 'Commande non trouvée' });
       }
       const id_client = commandeRows[0].ID_CLIENT;

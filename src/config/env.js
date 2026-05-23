@@ -10,12 +10,12 @@ const env = {
     NODE_ENV: process.env.NODE_ENV || 'development',
     FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
 
-    // Base de données MySQL
+    // Base de données PostgreSQL
     DB_HOST: process.env.DB_HOST || 'localhost',
-    DB_PORT: parseInt(process.env.DB_PORT) || 3306,
-    DB_USER: process.env.DB_USER || 'root',
+    DB_USER: process.env.DB_USER || 'postgres',
     DB_PASSWORD: process.env.DB_PASSWORD || '',
-    DB_NAME: process.env.DB_NAME,
+    DB_NAME: process.env.DB_NAME || 'ges_mag',
+    DB_PORT: parseInt(process.env.DB_PORT) || 5432,
     DATABASE_URL: process.env.DATABASE_URL,
 
     // JWT

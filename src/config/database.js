@@ -8,7 +8,7 @@ const poolConfig = env.DATABASE_URL
         ssl: { rejectUnauthorized: false },
         max: 10,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000
+        connectionTimeoutMillis: 15000
       }
     : {
         host: env.DB_HOST,
@@ -18,7 +18,7 @@ const poolConfig = env.DATABASE_URL
         database: env.DB_NAME,
         max: 10,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
+        connectionTimeoutMillis: 15000,
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     };
 
@@ -28,6 +28,8 @@ const formatPgSql = (sql) => {
     let paramIndex = 1;
     let pgSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
     pgSql = pgSql.replace(/CURDATE\(\)/gi, 'CURRENT_DATE');
+    pgSql = pgSql.replace(/NOW\(\)/gi, 'CURRENT_TIMESTAMP');
+    pgSql = pgSql.replace(/DATE_SUB\(([^,]+),\s*INTERVAL\s*(\d+)\s*(\w+)\)/gi, (match, date, interval, unit) => `${date} - INTERVAL '${interval} ${unit}'`);
     pgSql = pgSql.replace(/`/g, '"');
 
     // Si c'est un INSERT sans RETURNING, on l'ajoute pour récupérer l'ID généré

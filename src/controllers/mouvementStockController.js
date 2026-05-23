@@ -133,13 +133,31 @@ const mouvementStockController = {
     // Supprimer un mouvement
     deleteMouvement: async (req, res) => {
         const { id } = req.params;
+        const connection = await pool.getConnection();
         try {
-            const [result] = await pool.query('DELETE FROM MOUVEMENT_STOCK WHERE ID_MOUVEMENT = ?', [id]);
-            if (result.affectedRows === 0) return res.status(404).json({ message: 'Mouvement non trouvé' });
-            res.json({ message: 'Mouvement supprimé avec succès' });
+            await connection.beginTransaction();
+            // Récupérer le mouvement avant suppression
+            const [mouvements] = await connection.query('SELECT TYPE, QUANTITE, ID_STOCK FROM MOUVEMENT_STOCK WHERE ID_MOUVEMENT = ?', [id]);
+            if (mouvements.length === 0) {
+                await connection.rollback();
+                connection.release();
+                return res.status(404).json({ message: 'Mouvement non trouvé' });
+            }
+            const { TYPE, QUANTITE, ID_STOCK } = mouvements[0];
+            
+            // Inverser l'effet sur le stock
+            const modifier = TYPE === 'ENTREE' ? -QUANTITE : QUANTITE;
+            await connection.query('UPDATE STOCK_MAGASIN SET QUANTITE = QUANTITE + ? WHERE ID_STOCK = ?', [modifier, ID_STOCK]);
+
+            await connection.query('DELETE FROM MOUVEMENT_STOCK WHERE ID_MOUVEMENT = ?', [id]);
+            await connection.commit();
+            res.json({ message: 'Mouvement annulé et supprimé avec succès' });
         } catch (error) {
+            await connection.rollback();
             console.error(error);
             res.status(500).json({ message: 'Erreur lors de la suppression du mouvement' });
+        } finally {
+            if (connection && connection.release) connection.release();
         }
     }
 };
